@@ -2,6 +2,7 @@
   "name": "@local/agent-board",
   "version": "0.1.0",
   "private": true,
+  "license": "MIT",
   "type": "module",
   "description": "Unified board for local coding agents (DSH, Codex, Claude Code, Cursor, LocalAgent, Grok Bot, Antigravity) with supervised multi-agent collaboration",
   "exports": {
