@@ -12,7 +12,7 @@ import path from 'node:path'
 
 import { createAdapters } from './adapters/index.js'
 import { expandHome, readJsonSafe, writeJsonAtomic } from './util/fsx.js'
-import { iso, stableId } from './util/text.js'
+import { iso, stableId, summarize } from './util/text.js'
 
 const STATUS_ORDER = { attention: 0, running: 1, idle: 2, done: 3 }
 const MAX_EVENTS = 400
@@ -67,6 +67,9 @@ export class Board {
     this.stopped = false
     this.today = new Date().toISOString().slice(0, 10)
     this.todayCount = 0
+    /** @type {Map<string, any>} collaboration runs published by the collab runner */
+    this.collabs = new Map()
+    this.stopCollab = null
     this.token = crypto.randomBytes(24).toString('hex')
     this.encoder = new TextEncoder()
   }
@@ -245,6 +248,7 @@ export class Board {
       monitoring: this.monitoring,
       providers: this.providers.map((p) => [p.id, p.status, p.taskCount, p.runningCount, p.note]),
       tasks: [...this.tasks.values()].map((t) => [t.id, t.status, t.title, t.lastActivity, t.events.length, t.manual]),
+      collabs: [...this.collabs.values()].map((c) => [c.id, c.status, c.round, c.currentPhase, c.log?.length ?? 0]),
       events: this.events.length,
     }
     const signature = stableId(JSON.stringify(projection))
@@ -270,6 +274,9 @@ export class Board {
       monitoring: this.monitoring,
       providers: this.providers,
       tasks,
+      collabs: [...this.collabs.values()]
+        .sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)))
+        .slice(0, 12),
       stats: { ...stats, eventsToday: this.todayCount },
       events: this.events.slice(-60).reverse(),
       config: {
@@ -333,6 +340,40 @@ export class Board {
     return this.tasks.get(id)
   }
 
+  /** Publish a collaboration snapshot (called by the collab runner). */
+  upsertCollab(value) {
+    if (!value || typeof value.id !== 'string') return
+    this.collabs.set(value.id, value)
+    this.commit()
+  }
+
+  removeCollab(id) {
+    this.collabs.delete(String(id ?? ''))
+    this.commit()
+  }
+
+  /** Append a collaboration event to the shared event ring and UI stream. */
+  addCollabEvent(runId, text, severity = 'info', title = '') {
+    const at = iso(Date.now())
+    const key = `collab|${runId}|${at}|${text}`
+    this.events.push({
+      id: stableId(key),
+      taskId: `collab:${runId}`,
+      provider: 'collab',
+      at,
+      kind: 'run.heartbeat',
+      severity,
+      summary: summarize(text, 200),
+      title: summarize(title, 100),
+    })
+    this.pruneEvents()
+    this.commit()
+  }
+
+  getCollab(id) {
+    return this.collabs.get(String(id ?? ''))
+  }
+
   /** User-intent persistence, debounced. */
   persist() {
     if (this.persistTimer) return
@@ -378,6 +419,11 @@ export class Board {
       this.persist()
       await this.tick(true)
       return { ok: true }
+    }
+    if (name === 'stopCollab') {
+      const id = String(payload.id ?? '')
+      if (typeof this.stopCollab !== 'function') return { ok: false, error: 'collab-unavailable' }
+      return await this.stopCollab(id)
     }
     if (name === 'hideTask') {
       const taskId = String(payload.taskId ?? '')

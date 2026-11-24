@@ -7,7 +7,8 @@
 - 从每个 Agent 自己的本地会话存储里增量读取（Codex rollout、Claude 项目 JSONL、LocalAgent 会话 JSONL、Cursor composer / chat 正文、Grok 本地对话缓存、Antigravity 应用/工作区元数据，以及 DSH 自己的活 Agent 列表）。
 - 把会话归一成一个任务：状态（运行中 / 需要关注 / 空闲 / 已结束）、工作目录、最后活动时间、最近事件。
 - 在 DSH 左侧栏放一个「Agent 看板」入口，打开后是四列泳道 + 详情抽屉，数据通过 SSE 实时刷新。
-- 给任意 Agent 三个只读工具：`fleet_status`、`fleet_task`、`fleet_refresh`，大总管可以直接问「现在什么情况」。
+- 给任意 Agent 巡检工具：`fleet_status`、`fleet_task`、`fleet_refresh`，大总管可以直接问「现在什么情况」。
+- 在聊天里让多个 Agent 协作：`collab_start`、`collab_status`、`collab_list`、`collab_stop`。
 
 ## 怎么用
 
@@ -23,9 +24,18 @@
 
 ## 能力边界
 
-- **只读**：本版本不派发任务、不中断 Agent、不合并代码。
+- **监控只读**：看板本身不中断 Agent；协作会启动 CLI 进程，但只在独立 worktree 里工作，不合并、不 push。
 - **Cursor**：IDE composer 与 CLI chat 都会解析会话内容（标题、工作区、模型、用户/助手消息、工具调用）。数据库结构变化、文件被占用或读不到时，单个会话会降级为元数据，不会让看板报错。
 - **Grok Bot**：解析本地 `sand-client-persistence/*.blob` 对话缓存；没有 CLI，不能派发；更早的云端会话不在本地。
 - **Antigravity**：`antigravity-ide` 只是文件打开器，本地没有 transcript，只显示版本、workspace 数量和运行状态。
 - **DSH**：直接读取当前 Harness 进程里的活 Agent；历史 DSH 会话的标题与详细事件不在本版本展开。
 - 手动状态与隐藏记录保存在 `~/.dsh/agent-board/state.json`；其余数据都是派生缓存。
+
+## 多 Agent 协作
+
+在聊天里直接说「用 codex 和 claude 合作：<任务>」，插件会创建一个独立 git worktree，让第一个参与者实现、第二个参与者只读评审 diff，`revise` 时把问题回传给实现者再跑一轮，直到 approve 或达到轮次上限。
+
+- 工具：`collab_start`、`collab_status`、`collab_list`、`collab_stop`
+- Slash command：`/collab --agents=codex,claude --rounds=2 <任务>`（在 git 会话里自动使用当前仓库；`--scratch` 强制临时仓库）
+- 工作区：`~/agent-workspaces/<run-id>`，分支 `collab/<id>`，结束后保留
+- 边界：监督者/黑板模式，不是 A2A 协议直连；默认同时 1 个协作、2 轮、单步 15 分钟超时；不自动合并或 push

@@ -17,3 +17,10 @@
           localagent: true
           grokbot: true
           antigravity: true
+        collab:
+          enabled: true
+          workspaceRoot: ~/agent-workspaces
+          maxConcurrent: 1
+          maxRounds: 2
+          stepTimeoutSeconds: 900
+          defaultParticipants: [codex, claude]

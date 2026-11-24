@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Unified read-only control board for local coding agents (DSH, Codex, Claude Code, Cursor, LocalAgent, Grok Bot, Antigravity)",
+  "description": "Unified board for local coding agents (DSH, Codex, Claude Code, Cursor, LocalAgent, Grok Bot, Antigravity) with supervised multi-agent collaboration",
   "exports": {
     ".": "./index.js",
     "./client": "./client.js",

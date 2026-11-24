@@ -77,6 +77,25 @@ window.__ModuleLoader__.load({
       confirmDone: '把这个任务标记为已结束？看板仍会保留它的历史记录。',
       confirmHide: '隐藏这个任务？当它再次产生活动时会重新出现。',
       actionFailed: '操作失败',
+      collabLabel: '协作',
+      collabTitle: '进行中的协作',
+      collabWaiting: '等待开始',
+      collabRound: '轮次',
+      collabPhase: '当前阶段',
+      collabParticipants: '参与者',
+      collabRepo: '仓库',
+      collabVerdict: '评审结论',
+      collabSummary: '评审摘要',
+      collabError: '错误',
+      collabPhases: '阶段',
+      collabLog: '协作日志',
+      collabStop: '停止协作',
+      collabConfirmStop: '停止这次协作？当前 Agent 进程会被终止，工作区会保留。',
+      'collab.running': '运行中',
+      'collab.done': '已完成',
+      'collab.failed': '失败',
+      'collab.stopped': '已停止',
+      'collab.queued': '排队中',
       'provider.dsh': 'DSH',
       'provider.codex': 'Codex',
       'provider.claude': 'Claude Code',
@@ -159,6 +178,25 @@ window.__ModuleLoader__.load({
       confirmDone: 'Mark this task as finished? History stays on the board.',
       confirmHide: 'Hide this task? It reappears when new activity arrives.',
       actionFailed: 'Action failed',
+      collabLabel: 'Collab',
+      collabTitle: 'Collaborations',
+      collabWaiting: 'waiting to start',
+      collabRound: 'Round',
+      collabPhase: 'Phase',
+      collabParticipants: 'Participants',
+      collabRepo: 'Repository',
+      collabVerdict: 'Verdict',
+      collabSummary: 'Review summary',
+      collabError: 'Error',
+      collabPhases: 'Phases',
+      collabLog: 'Collaboration log',
+      collabStop: 'Stop collaboration',
+      collabConfirmStop: 'Stop this collaboration? The current agent process is terminated; the worktree is kept.',
+      'collab.running': 'running',
+      'collab.done': 'done',
+      'collab.failed': 'failed',
+      'collab.stopped': 'stopped',
+      'collab.queued': 'queued',
       'provider.dsh': 'DSH',
       'provider.codex': 'Codex',
       'provider.claude': 'Claude Code',
@@ -278,6 +316,18 @@ window.__ModuleLoader__.load({
 .ab-panel-foot .ab-btn.is-danger{color:var(--dsw-alias-state-error-primary);border-color:color-mix(in srgb,var(--dsw-alias-state-error-primary) 55%,transparent)}
 .ab-note{font-size:11px;color:var(--dsw-alias-label-secondary);margin:0}
 .ab-sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.ab-collabs{margin:10px 18px 0;border:1px solid var(--dsw-alias-border-l1);border-radius:10px;background:var(--dsw-alias-bg-layer-1);overflow:hidden;flex:0 0 auto}
+.ab-collabs-head{display:flex;align-items:center;gap:8px;padding:8px 11px;border-bottom:1px solid var(--dsw-alias-border-l1);font-size:12px;font-weight:600}
+.ab-collabs-head .ab-count{margin-left:auto;font-weight:500;color:var(--dsw-alias-label-secondary);font-variant-numeric:tabular-nums}
+.ab-collab-list{display:flex;gap:8px;overflow-x:auto;padding:9px;scrollbar-width:thin}
+.ab-collab{display:flex;flex-direction:column;gap:4px;flex:0 0 280px;min-width:0;border:1px solid var(--dsw-alias-border-l1);background:var(--dsw-alias-bg-base);border-radius:8px;padding:8px 10px;font:inherit;color:var(--dsw-alias-label-primary);text-align:left;cursor:pointer}
+.ab-collab:hover{border-color:var(--dsw-alias-border-l2);background:var(--dsw-alias-bg-layer-2)}
+.ab-collab:focus-visible{outline:2px solid var(--ab-running);outline-offset:1px}
+.ab-collab-phases{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.ab-collab-phases li{display:grid;grid-template-columns:64px 92px minmax(0,1fr);gap:7px;font-size:11.5px;align-items:baseline}
+.ab-collab-phases .ab-phase-actor{color:var(--dsw-alias-label-secondary);font-size:10.5px;text-transform:uppercase;letter-spacing:.03em}
+.ab-collab-phases p{margin:0;word-break:break-word}
+.ab-collab-phases li[data-status=failed] p{color:var(--ab-error)}
 @media (max-width:900px){
   .ab-stats{grid-template-columns:repeat(2,minmax(0,1fr))}
   .ab-lanes{grid-auto-flow:column;grid-auto-columns:260px;grid-template-columns:none;padding-bottom:12px}
@@ -468,6 +518,137 @@ window.__ModuleLoader__.load({
       )
     }
 
+    function collabDot(status) {
+      if (status === 'running') return 'running'
+      if (status === 'failed') return 'attention'
+      if (status === 'done') return 'done'
+      return 'idle'
+    }
+
+    function CollabCard(props) {
+      const { run, t, onOpen } = props
+      const last = run.log && run.log.length > 0 ? run.log[run.log.length - 1] : null
+      return h('button', {
+        type: 'button',
+        className: 'ab-collab',
+        onClick: () => onOpen(run.id),
+        title: run.title,
+      },
+        h('span', { className: 'ab-card-top' },
+          h(StatusDot, { status: collabDot(run.status) }),
+          h('span', { className: 'ab-prov' }, t('collabLabel')),
+          h('span', { className: 'ab-ago' }, timeAgo(run.updatedAt, t)),
+        ),
+        h('span', { className: 'ab-card-title' }, run.title),
+        h('span', { className: 'ab-card-sub' }, `${run.participants.join(' → ')} · ${t('collabRound')} ${run.round}/${run.maxRounds}`),
+        h('span', { className: 'ab-card-event' }, last ? last.text : t('collabWaiting')),
+      )
+    }
+
+    function CollabDrawer(props) {
+      const { run, t, onClose, onAction, busy, error } = props
+      const dialogRef = useRef(null)
+      useEffect(() => {
+        const onKey = (event) => {
+          if (event.key === 'Escape') onClose()
+        }
+        window.addEventListener('keydown', onKey)
+        return () => window.removeEventListener('keydown', onKey)
+      }, [onClose])
+      useEffect(() => {
+        dialogRef.current?.focus?.()
+      }, [run.id])
+
+      const rows = [
+        [t('status'), t(`collab.${run.status}`) === `collab.${run.status}` ? run.status : t(`collab.${run.status}`)],
+        [t('collabParticipants'), run.participants.join(' → ')],
+        [t('collabRound'), `${run.round}/${run.maxRounds}`],
+        [t('collabPhase'), run.currentPhase || '—'],
+        [t('workspace'), run.workspace || '—'],
+        [t('branch'), run.branch || '—'],
+      ]
+      if (run.repo) rows.push([t('collabRepo'), run.repo])
+      if (run.verdict) rows.push([t('collabVerdict'), run.verdict])
+      if (run.review?.summary) rows.push([t('collabSummary'), run.review.summary])
+      if (run.error) rows.push([t('collabError'), run.error])
+
+      return h('div', { className: 'ab-drawer' },
+        h('div', { className: 'ab-backdrop', onClick: onClose, 'aria-hidden': true }),
+        h('aside', {
+          className: 'ab-panel',
+          role: 'dialog',
+          'aria-modal': 'true',
+          'aria-label': run.title,
+          tabIndex: -1,
+          ref: dialogRef,
+        },
+          h('div', { className: 'ab-panel-head' },
+            h('div', { style: { minWidth: 0 } },
+              h('h2', null, run.title),
+              h('div', { className: 'ab-meta' },
+                h(StatusDot, { status: collabDot(run.status) }),
+                h('span', null, t('collabLabel')),
+                h('span', null, timeAgo(run.updatedAt, t)),
+              ),
+            ),
+            h('button', { type: 'button', className: 'ab-x', onClick: onClose, 'aria-label': t('close') }, '✕'),
+          ),
+          h('div', { className: 'ab-panel-body' },
+            error ? h('div', { className: 'ab-banner' }, `${t('actionFailed')}: ${error}`) : null,
+            h('section', null,
+              h('h3', { className: 'ab-section-title' }, t('overview')),
+              h('dl', { className: 'ab-grid' },
+                rows.map(([key, value], index) => [
+                  h('dt', { key: `ck${index}` }, key),
+                  h('dd', { key: `cv${index}`, title: String(value) }, String(value)),
+                ]),
+              ),
+            ),
+            h('section', null,
+              h('h3', { className: 'ab-section-title' }, `${t('collabPhases')} · ${run.phases.length}`),
+              run.phases.length === 0
+                ? h('p', { className: 'ab-note' }, t('collabWaiting'))
+                : h('ul', { className: 'ab-collab-phases' },
+                    run.phases.map((phase) => h('li', { key: String(phase.index), 'data-status': phase.status },
+                      h('time', null, timeAgo(phase.startedAt, t)),
+                      h('span', { className: 'ab-phase-actor' }, `${phase.role} · ${phase.actor}`),
+                      h('p', null, phase.summary || '—'),
+                    )),
+                  ),
+            ),
+            h('section', null,
+              h('h3', { className: 'ab-section-title' }, t('collabLog')),
+              run.log.length === 0
+                ? h('p', { className: 'ab-note' }, t('collabWaiting'))
+                : h('ul', { className: 'ab-timeline' },
+                    run.log.slice().reverse().map((entry, index) => h('li', {
+                      key: `${entry.at ?? ''}-${index}`,
+                      'data-sev': entry.severity ?? 'info',
+                    },
+                      h('time', null, timeAgo(entry.at, t)),
+                      h('span', { className: 'ab-kind' }, entry.actor),
+                      h('p', null, entry.text),
+                    )),
+                  ),
+            ),
+          ),
+          h('div', { className: 'ab-panel-foot' },
+            run.status === 'running' || run.status === 'queued'
+              ? h('button', {
+                  type: 'button',
+                  className: 'ab-btn is-danger',
+                  disabled: busy,
+                  onClick: () => {
+                    if (window.confirm(t('collabConfirmStop'))) onAction('stopCollab', { id: run.id })
+                  },
+                }, t('collabStop'))
+              : null,
+            h('button', { type: 'button', className: 'ab-btn', onClick: onClose }, t('close')),
+          ),
+        ),
+      )
+    }
+
     function Drawer(props) {
       const { task, t, onClose, onAction, busy, error } = props
       const dialogRef = useRef(null)
@@ -588,6 +769,7 @@ window.__ModuleLoader__.load({
       const [statusFilter, setStatusFilter] = useState('all')
       const [providerFilter, setProviderFilter] = useState('all')
       const [selectedId, setSelectedId] = useState(null)
+      const [selectedCollabId, setSelectedCollabId] = useState(null)
       const [busy, setBusy] = useState(false)
       const [actionError, setActionError] = useState('')
 
@@ -624,6 +806,16 @@ window.__ModuleLoader__.load({
       }, [filtered])
 
       const selected = selectedId === null ? null : tasks.find((task) => task.id === selectedId) ?? null
+      const collabs = data?.collabs ?? []
+      const selectedCollab = selectedCollabId === null ? null : collabs.find((run) => run.id === selectedCollabId) ?? null
+      const openTask = (id) => {
+        setSelectedId(id)
+        setSelectedCollabId(null)
+      }
+      const openCollab = (id) => {
+        setSelectedCollabId(id)
+        setSelectedId(null)
+      }
       const stats = data?.stats ?? { total: 0, running: 0, attention: 0, idle: 0, done: 0, eventsToday: 0 }
 
       const toggleMonitoring = async () => {
@@ -676,6 +868,15 @@ window.__ModuleLoader__.load({
               h('span', { className: 'ab-provider-count' }, `${provider.runningCount}/${provider.taskCount}`),
             )),
           ),
+          collabs.length > 0 ? h('section', { className: 'ab-collabs' },
+            h('div', { className: 'ab-collabs-head' },
+              h('span', null, t('collabTitle')),
+              h('span', { className: 'ab-count' }, String(collabs.length)),
+            ),
+            h('div', { className: 'ab-collab-list' },
+              collabs.map((run) => h(CollabCard, { key: run.id, run, t, onOpen: openCollab })),
+            ),
+          ) : null,
           h('div', { className: 'ab-toolbar' },
             h('label', { className: 'ab-search' },
               h('span', { className: 'ab-sr' }, t('search')),
@@ -715,7 +916,7 @@ window.__ModuleLoader__.load({
                     h('div', { className: 'ab-lane-body' },
                       lanes[lane].length === 0
                         ? h('div', { className: 'ab-lane-empty' }, t('laneEmpty'))
-                        : lanes[lane].map((task) => h(TaskCard, { key: task.id, task, t, onOpen: setSelectedId })),
+                        : lanes[lane].map((task) => h(TaskCard, { key: task.id, task, t, onOpen: openTask })),
                     ),
                   )),
                 ),
@@ -725,6 +926,14 @@ window.__ModuleLoader__.load({
           task: selected,
           t,
           onClose: () => setSelectedId(null),
+          onAction,
+          busy,
+          error: actionError,
+        }) : selectedCollab ? h(CollabDrawer, {
+          key: selectedCollab.id,
+          run: selectedCollab,
+          t,
+          onClose: () => setSelectedCollabId(null),
           onAction,
           busy,
           error: actionError,

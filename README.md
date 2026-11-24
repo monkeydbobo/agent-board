@@ -1,6 +1,6 @@
 # Agent 看板（Agent Fleet Board）
 
-一个 DeepSeek Harness 插件：把本机所有编码 Agent 的会话收进一张看板，并给「大总管」Agent 提供只读的巡检工具。
+一个 DeepSeek Harness 插件：把本机所有编码 Agent 的会话收进一张看板，给「大总管」Agent 提供巡检工具，并能在聊天里让多个 Agent 在独立 worktree 里协作。
 
 ```
 ┌──────────────────── DSH Web GUI ────────────────────┐
@@ -26,8 +26,9 @@ client.js                 Client 入口（main 面板 + 侧栏图标）
 src/host/
   board.js                合并、状态覆盖、SSE、持久化
   status.js               统一状态阶梯
+  collab.js               多 Agent 协作（worktree + 实现/评审循环）
   routes.js               snapshot / stream / action + 页面 token
-  tools.js                fleet_status / fleet_task / fleet_refresh
+  tools.js                fleet_* 巡检 + collab_* 协作工具
   adapters/               每个 Agent 一个适配器
   util/                   文件尾随、进程探测、脱敏
 test/parsers.test.js      node --test
@@ -53,6 +54,38 @@ node --test test/*.test.js
 
 安装后新开一个会话，左侧栏出现「Agent 看板」图标。
 
+## 多 Agent 协作（chat 入口）
+
+在任意 DSH 会话里直接说清楚任务，就能让多个本地 Agent 合作，例如：
+
+- 「用 codex 和 claude 合作：在 `/Users/me/repo` 里加上 `hello()` 和测试，要求 `node --test` 通过。」
+- 「让 codex 实现、claude 评审，最多两轮，base 用 `main`。」
+- 「用 localagent 实现、claude 评审。」
+
+我会调用 `collab_start`，在 `~/agent-workspaces/<id>` 里创建一个独立 git worktree：
+
+1. `participants[0]`（默认 Codex）按任务实现，并写 `.agent-board/implementation-round-N.md`；
+2. `participants[1]`（默认 Claude）只读评审 `git diff`，输出 `{"verdict":"approve|revise", ...}`；
+3. `revise` 时把问题回传给实现者再来一轮，直到 approve 或达到 `maxRounds`；
+4. 结束写 `.agent-board/result.json`，保留 worktree/分支，不自动合并、不 push。
+
+看板的「协作」条会实时显示参与者、轮次、当前阶段和日志；详情里可以停止协作。
+
+协作 worktree 从仓库 `HEAD`（或 `--base`）拉出；当前未提交的改动不会被带进去，先 commit 或另开 scratch。
+
+也可以直接用 slash command（不经过模型）：
+
+```text
+/collab --agents=codex,claude --rounds=2 <任务>
+/collab --agents=localagent,claude --scratch <任务>
+```
+
+在 git 仓库的会话里，`/collab` 自动用当前会话目录建 worktree；不在仓库里时退化为临时仓库（`--scratch` 强制）。
+
+工具：`collab_start` / `collab_status` / `collab_list` / `collab_stop`。
+
+边界：这是**监督者 + 共享工作区**的协作，不是 Agent 之间的 A2A 协议直连；默认同时只允许 1 个协作、2 轮，单步 15 分钟超时。
+
 ## HTTP API
 
 | 方法 | 路径 | 说明 |
@@ -66,7 +99,9 @@ node --test test/*.test.js
 
 ## 本版本边界
 
-- 只读：不派发、不中断、不合并。
+- 监控是只读的；协作会启动本地 CLI 进程，但只在独立 worktree 里工作。
+- 不自动合并、不 push、不改你的主工作区；协作结束保留分支和 `result.json`。
+- 停止协作会终止当前 CLI 进程（SIGTERM，2 秒后 SIGKILL）。
 - Cursor 会解析 IDE composer 与 CLI chat 的正文；结构变化或读不到时单个会话降级为元数据。
 - Grok Bot 会解析本地对话缓存（`sand-client-persistence/*.blob`），但没有 CLI，不能派发；Grok 更早的云端会话不在本地。
 - Antigravity 的 `antigravity-ide` 只是文件打开器，本地没有 transcript，只做应用/工作区元数据观测。
