@@ -227,7 +227,13 @@ window.__ModuleLoader__.load({
     }
 
     const CSS = `
-.ab-root{--ab-running:var(--dsw-alias-brand-primary);--ab-attention:var(--dsw-alias-state-warn-primary);--ab-idle:var(--dsw-alias-state-idle-primary);--ab-done:var(--dsw-alias-state-success-primary);--ab-error:var(--dsw-alias-state-error-primary);position:relative;display:flex;flex-direction:column;height:100%;min-height:480px;overflow:hidden;background:var(--dsw-alias-bg-base);color:var(--dsw-alias-label-primary);font:13px/1.45 inherit}
+/* The main panel reaches the window edge when the sidebar is collapsed, so the
+   macOS window-chrome band (traffic lights + shell.leading controls) would sit
+   over the board header. Only that state needs the frame's top clearance; an
+   expanded sidebar already owns the band. box-sizing keeps the 100% height
+   inside the viewport once the padding applies. */
+.ab-root{--ab-running:var(--dsw-alias-brand-primary);--ab-attention:var(--dsw-alias-state-warn-primary);--ab-idle:var(--dsw-alias-state-idle-primary);--ab-done:var(--dsw-alias-state-success-primary);--ab-error:var(--dsw-alias-state-error-primary);position:relative;box-sizing:border-box;display:flex;flex-direction:column;height:100%;min-height:480px;overflow:hidden;background:var(--dsw-alias-bg-base);color:var(--dsw-alias-label-primary);font-size:13px;line-height:1.45}
+html[data-platform='darwin'] [data-sidebar-collapsed] .ab-root{padding-top:var(--dsh-frame-top-clearance,0px)}
 .ab-header{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 18px;border-bottom:1px solid var(--dsw-alias-border-l1);background:var(--dsw-alias-bg-layer-1)}
 .ab-brand{display:flex;align-items:center;gap:10px;min-width:0}
 .ab-brand h1{margin:0;font-size:15px;font-weight:600;letter-spacing:.01em}
