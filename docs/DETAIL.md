@@ -4,7 +4,7 @@
 
 ## 它会做什么
 
-- 从每个 Agent 自己的本地会话存储里增量读取（Codex rollout、Claude 项目 JSONL、LocalAgent 任务与日志、Cursor chat 元数据、Grok 守护日志、Antigravity 工作区存储，以及 DSH 自己的活 Agent 列表）。
+- 从每个 Agent 自己的本地会话存储里增量读取（Codex rollout、Claude 项目 JSONL、LocalAgent 任务与日志、Cursor composer / chat 正文、Grok 守护日志、Antigravity 工作区存储，以及 DSH 自己的活 Agent 列表）。
 - 把会话归一成一个任务：状态（运行中 / 需要关注 / 空闲 / 已结束）、工作目录、最后活动时间、最近事件。
 - 在 DSH 左侧栏放一个「Agent 看板」入口，打开后是四列泳道 + 详情抽屉，数据通过 SSE 实时刷新。
 - 给任意 Agent 三个只读工具：`fleet_status`、`fleet_task`、`fleet_refresh`，大总管可以直接问「现在什么情况」。
@@ -20,7 +20,7 @@
 ## 能力边界
 
 - **只读**：本版本不派发任务、不中断 Agent、不合并代码。
-- **Cursor**：只读取 `~/.cursor/chats/**/store.db` 的存在与时间，不解析数据库内容，因此显示为元数据级监控。
+- **Cursor**：IDE composer 与 CLI chat 都会解析会话内容（标题、工作区、模型、用户/助手消息、工具调用）。数据库结构变化、文件被占用或读不到时，单个会话会降级为元数据，不会让看板报错。
 - **Grok Bot / Antigravity**：本机没有它们的 CLI 或 hook，只能做进程 + 日志/工作区级的观测，不显示精确的 turn。
 - **DSH**：直接读取当前 Harness 进程里的活 Agent；历史 DSH 会话的标题与详细事件不在本版本展开。
 - 手动状态与隐藏记录保存在 `~/.dsh/agent-board/state.json`；其余数据都是派生缓存。

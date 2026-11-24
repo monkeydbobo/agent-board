@@ -64,6 +64,6 @@ node --test test/*.test.js
 ## 本版本边界
 
 - 只读：不派发、不中断、不合并。
-- Cursor 只做元数据级监控（`store.db` 的存在与时间）。
+- Cursor 会解析 IDE composer 与 CLI chat 的正文；结构变化或读不到时单个会话降级为元数据。
 - Grok Bot / Antigravity 没有本机 CLI，只做进程 + 日志/工作区级观测。
 - DSH 只列当前进程里的活 Agent。

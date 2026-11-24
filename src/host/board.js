@@ -176,7 +176,7 @@ export class Board {
           lastActivity: task.lastActivity || null,
           startedAt: task.startedAt || null,
           sessionRef: task.sessionRef || '',
-          events: Array.isArray(task.events) ? task.events.slice(-40) : [],
+          events: Array.isArray(task.events) ? task.events.slice(-24) : [],
           meta: task.meta ?? {},
           firstSeenAt: this.tasks.get(id)?.firstSeenAt ?? observedAt,
           updatedAt: observedAt,
@@ -271,7 +271,7 @@ export class Board {
       providers: this.providers,
       tasks,
       stats: { ...stats, eventsToday: this.todayCount },
-      events: this.events.slice(-80).reverse(),
+      events: this.events.slice(-60).reverse(),
       config: {
         pollMs: this.config.pollMs,
         stallSeconds: this.config.stallSeconds,
