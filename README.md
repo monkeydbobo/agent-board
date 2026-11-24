@@ -16,6 +16,8 @@
 └───────────────────────────────────────────────────────┘
 ```
 
+每个 Provider 有本地默认图标：通过 dashboard-icons MCP 检索后固化为 `assets/icons/*.svg`，运行时不联网；来源与商标说明见 [`assets/icons/SOURCES.md`](assets/icons/SOURCES.md)。
+
 ## 目录
 
 ```
@@ -57,6 +59,7 @@ node --test test/*.test.js
 |---|---|---|
 | GET | `/agent-board/api/snapshot` | 当前快照（任务、Provider、统计、最近事件） |
 | GET | `/agent-board/api/stream` | SSE，每次变化推一份快照 |
+| GET | `/agent-board/api/icon/<provider>.svg` | Provider 默认图标（本地 SVG） |
 | POST | `/agent-board/api/action` | `refresh` / `setMonitoring` / `setTaskStatus` / `clearTaskOverride` / `hideTask` |
 
 只读请求要求 `Host` 是回环地址；写请求还要求同源 `Origin` 或页面注入的 `x-agent-board-token`。

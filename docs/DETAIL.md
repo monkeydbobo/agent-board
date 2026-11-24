@@ -17,6 +17,10 @@
 4. 「暂停监控」保留当前快照并停止轮询；「恢复监控」继续。
 5. 需要让大总管汇总时，在当前会话里直接调用 `fleet_status`。
 
+## 图标
+
+每个 Provider 在卡片和详情里有一个本地默认图标。图标通过 dashboard-icons MCP 检索后固化为 `assets/icons/*.svg`，运行时不联网；来源与商标说明见 `assets/icons/SOURCES.md`。
+
 ## 能力边界
 
 - **只读**：本版本不派发任务、不中断 Agent、不合并代码。

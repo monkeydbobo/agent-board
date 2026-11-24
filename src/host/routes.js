@@ -1,3 +1,5 @@
+import { readIcon } from './icons.js'
+
 /**
  * HTTP surface of the board.
  *
@@ -137,6 +139,26 @@ export function registerRoutes(ctx, board) {
       } catch (error) {
         deny(500, `action-failed: ${error?.message ?? error}`)
       }
+    },
+  }))
+
+  disposers.push(webServer.register({
+    kind: 'prefix',
+    path: '/agent-board/api/icon',
+    resource: async (request) => {
+      if (!resourceAllowed(request)) return json({ ok: false, error: 'forbidden' }, 403)
+      const pathname = new URL(request.url).pathname
+      const match = pathname.match(/^\/agent-board\/api\/icon\/([a-z-]+)\.svg$/)
+      if (!match) return new Response('Not Found', { status: 404 })
+      const data = await readIcon(match[1])
+      if (!data) return new Response('Not Found', { status: 404 })
+      return new Response(data, {
+        headers: {
+          'content-type': 'image/svg+xml; charset=utf-8',
+          'cache-control': 'public, max-age=86400',
+          'content-security-policy': "default-src 'none'; style-src 'unsafe-inline'",
+        },
+      })
     },
   }))
 

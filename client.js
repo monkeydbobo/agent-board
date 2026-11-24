@@ -223,6 +223,10 @@ window.__ModuleLoader__.load({
 .ab-dot[data-status=attention]{background:var(--ab-attention)}
 .ab-dot[data-status=done]{background:var(--ab-done)}
 .ab-dot[data-status=offline]{background:var(--dsw-alias-border-l2)}
+.ab-icon{display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;border-radius:5px;background:#fff;box-shadow:inset 0 0 0 1px rgba(0,0,0,.10);overflow:hidden;padding:2px;box-sizing:border-box}
+.ab-icon img{width:100%;height:100%;display:block;object-fit:contain}
+.ab-icon[data-missing="1"]{background:var(--dsw-alias-bg-layer-2);padding:0}
+.ab-icon[data-missing="1"]::after{content:attr(data-letter);font-size:9px;font-weight:700;color:var(--dsw-alias-label-secondary)}
 .ab-toolbar{display:flex;align-items:center;gap:8px;padding:10px 18px;flex-wrap:wrap}
 .ab-search{flex:1 1 220px;min-width:160px;max-width:380px}
 .ab-search input{width:100%;box-sizing:border-box;border:1px solid var(--dsw-alias-border-l1);background:var(--dsw-alias-bg-layer-1);color:var(--dsw-alias-label-primary);border-radius:6px;padding:6px 9px;font:inherit;font-size:12px;outline:none}
@@ -396,6 +400,29 @@ window.__ModuleLoader__.load({
       return h('i', { className: 'ab-dot', 'data-status': props.status ?? 'offline', 'aria-hidden': true })
     }
 
+    function ProviderIcon(props) {
+      const id = String(props?.id ?? '')
+      const size = props?.size ?? 16
+      const letter = (id.charAt(0) || '?').toUpperCase()
+      return h('span', {
+        className: 'ab-icon',
+        style: { width: `${size}px`, height: `${size}px` },
+        'data-letter': letter,
+        'aria-hidden': true,
+      }, h('img', {
+        src: `/agent-board/api/icon/${id}.svg`,
+        alt: '',
+        draggable: false,
+        loading: 'lazy',
+        onError: (event) => {
+          const image = event.currentTarget
+          const parent = image.parentElement
+          if (parent) parent.dataset.missing = '1'
+          image.style.display = 'none'
+        },
+      }))
+    }
+
     function BoardIcon(props) {
       const size = props?.size ?? 20
       return h('svg', {
@@ -431,6 +458,7 @@ window.__ModuleLoader__.load({
       },
         h('span', { className: 'ab-card-top' },
           h(StatusDot, { status: task.status }),
+          h(ProviderIcon, { id: task.provider, size: 14 }),
           h('span', { className: 'ab-prov' }, providerLabel(t, task.provider)),
           h('span', { className: 'ab-ago' }, timeAgo(task.lastActivity, t)),
         ),
@@ -484,6 +512,7 @@ window.__ModuleLoader__.load({
               h('h2', null, task.title),
               h('div', { className: 'ab-meta' },
                 h(StatusDot, { status: task.status }),
+                h(ProviderIcon, { id: task.provider, size: 15 }),
                 h('span', null, providerLabel(t, task.provider)),
                 h('span', null, timeAgo(task.lastActivity, t)),
                 task.manual ? h('span', null, `· ${t('manual')}`) : null,
@@ -642,6 +671,7 @@ window.__ModuleLoader__.load({
               onClick: () => setProviderFilter((current) => (current === provider.id ? 'all' : provider.id)),
             },
               h(StatusDot, { status: provider.status }),
+              h(ProviderIcon, { id: provider.id, size: 16 }),
               h('span', { className: 'ab-provider-name' }, providerLabel(t, provider.id)),
               h('span', { className: 'ab-provider-count' }, `${provider.runningCount}/${provider.taskCount}`),
             )),
