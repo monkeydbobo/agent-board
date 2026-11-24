@@ -109,6 +109,30 @@ export function registerRoutes(ctx, board) {
 
   disposers.push(webServer.register({
     kind: 'exact',
+    path: '/agent-board/api/health',
+    resource: async (request) => {
+      if (!resourceAllowed(request)) return json({ ok: false, error: 'forbidden' }, 403)
+      let commandRegistered = false
+      try {
+        const commands = typeof ctx.get === 'function' ? ctx.get('commands') : undefined
+        const agents = typeof ctx.get === 'function' ? ctx.get('agents') : undefined
+        const agent = agents?.list?.()[0]
+        if (commands?.find && agent) commandRegistered = Boolean(commands.find(agent, 'collab'))
+      } catch {
+        commandRegistered = false
+      }
+      return json({
+        ok: true,
+        commandRegistered,
+        collabCount: board.collabs?.size ?? 0,
+        revision: board.revision,
+        monitoring: board.monitoring,
+      })
+    },
+  }))
+
+  disposers.push(webServer.register({
+    kind: 'exact',
     path: '/agent-board/api/action',
     handler: async (req, res) => {
       const headers = req.headers ?? {}

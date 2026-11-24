@@ -23,7 +23,7 @@ import path from 'node:path'
 import { ensureDir, expandHome, readJsonSafe, statSafe, writeJsonAtomic } from './util/fsx.js'
 import { iso, summarize } from './util/text.js'
 
-const PARTICIPANTS = ['codex', 'claude', 'localagent', 'cursor']
+const PARTICIPANTS = ['codex', 'claude', 'localagent']
 const MAX_OUTPUT_BYTES = 2 * 1024 * 1024
 const MAX_PHASE_OUTPUT = 200 * 1024
 
@@ -387,7 +387,7 @@ export class CollabRunner {
 
     const participants = normalizeParticipants(input.participants ?? this.config.defaultParticipants)
     if (participants.length === 0) return { ok: false, error: 'participant-required' }
-    if (participants.length > 3) return { ok: false, error: 'too-many-participants' }
+    if (participants.length > 2) return { ok: false, error: 'v1-supports-two-participants' }
 
     // Validate the repository before creating a run, so a /collab command can
     // fall back to a scratch workspace without leaving a failed record behind.

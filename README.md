@@ -69,7 +69,7 @@ node --test test/*.test.js
 3. `revise` 时把问题回传给实现者再来一轮，直到 approve 或达到 `maxRounds`；
 4. 结束写 `.agent-board/result.json`，保留 worktree/分支，不自动合并、不 push。
 
-看板的「协作」条会实时显示参与者、轮次、当前阶段和日志；详情里可以停止协作。
+v1 固定两个参与者：第一个实现、第二个评审（Codex / Claude Code / LocalAgent 任意组合）。看板的「协作」条会实时显示参与者、轮次、当前阶段和日志；详情里可以停止协作。
 
 协作 worktree 从仓库 `HEAD`（或 `--base`）拉出；当前未提交的改动不会被带进去，先 commit 或另开 scratch。
 
@@ -90,7 +90,8 @@ node --test test/*.test.js
 
 | 方法 | 路径 | 说明 |
 |---|---|---|
-| GET | `/agent-board/api/snapshot` | 当前快照（任务、Provider、统计、最近事件） |
+| GET | `/agent-board/api/snapshot` | 当前快照（任务、Provider、协作、统计、最近事件） |
+| GET | `/agent-board/api/health` | 插件健康信息（`/collab` 是否注册、协作数） |
 | GET | `/agent-board/api/stream` | SSE，每次变化推一份快照 |
 | GET | `/agent-board/api/icon/<provider>.svg` | Provider 默认图标（本地 SVG） |
 | POST | `/agent-board/api/action` | `refresh` / `setMonitoring` / `setTaskStatus` / `clearTaskOverride` / `hideTask` |
