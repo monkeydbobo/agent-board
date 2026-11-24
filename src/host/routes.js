@@ -121,9 +121,18 @@ export function registerRoutes(ctx, board) {
       } catch {
         commandRegistered = false
       }
+      let clientRev
+      try {
+        const clientModules = typeof ctx.get === 'function' ? ctx.get('clientModules') : undefined
+        const entries = clientModules?.graph?.()?.entries ?? []
+        clientRev = entries.find((entry) => entry.id === '@local/agent-board')?.rev
+      } catch {
+        clientRev = undefined
+      }
       return json({
         ok: true,
         commandRegistered,
+        clientRev,
         collabCount: board.collabs?.size ?? 0,
         revision: board.revision,
         monitoring: board.monitoring,
