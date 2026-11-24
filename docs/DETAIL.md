@@ -4,7 +4,7 @@
 
 ## 它会做什么
 
-- 从每个 Agent 自己的本地会话存储里增量读取（Codex rollout、Claude 项目 JSONL、LocalAgent 任务与日志、Cursor composer / chat 正文、Grok 守护日志、Antigravity 工作区存储，以及 DSH 自己的活 Agent 列表）。
+- 从每个 Agent 自己的本地会话存储里增量读取（Codex rollout、Claude 项目 JSONL、LocalAgent 会话 JSONL、Cursor composer / chat 正文、Grok 守护日志、Antigravity 工作区存储，以及 DSH 自己的活 Agent 列表）。
 - 把会话归一成一个任务：状态（运行中 / 需要关注 / 空闲 / 已结束）、工作目录、最后活动时间、最近事件。
 - 在 DSH 左侧栏放一个「Agent 看板」入口，打开后是四列泳道 + 详情抽屉，数据通过 SSE 实时刷新。
 - 给任意 Agent 三个只读工具：`fleet_status`、`fleet_task`、`fleet_refresh`，大总管可以直接问「现在什么情况」。
