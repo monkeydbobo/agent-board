@@ -1,0 +1,19 @@
+- insert:
+    - id: agent-board
+      name: '@local/agent-board'
+      config:
+        enabled: true
+        dataDir: ~/.dsh/agent-board
+        pollMs: 3000
+        stallSeconds: 600
+        activeWindowSeconds: 180
+        maxTasksPerProvider: 40
+        maxEventsPerTask: 60
+        providers:
+          dsh: true
+          codex: true
+          claude: true
+          cursor: true
+          localagent: true
+          grokbot: true
+          antigravity: true

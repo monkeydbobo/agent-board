@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" width="96" height="96" role="img" aria-label="Agent board">
+  <defs>
+    <linearGradient id="ab-bg" x1="0" y1="0" x2="96" y2="96" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#2f6df6"/>
+      <stop offset="1" stop-color="#6c3df4"/>
+    </linearGradient>
+  </defs>
+  <rect width="96" height="96" rx="22" fill="url(#ab-bg)"/>
+  <g fill="none" stroke="#ffffff" stroke-width="3.4" stroke-linejoin="round" opacity="0.96">
+    <rect x="17" y="17" width="25" height="25" rx="5"/>
+    <rect x="54" y="17" width="25" height="25" rx="5"/>
+    <rect x="17" y="54" width="25" height="25" rx="5"/>
+  </g>
+  <circle cx="66.5" cy="66.5" r="11" fill="#5df2a8"/>
+  <circle cx="66.5" cy="66.5" r="15.5" fill="none" stroke="#5df2a8" stroke-width="2" opacity="0.45"/>
+</svg>

@@ -1,0 +1,7 @@
+{
+  "meta": {
+    "title": "Agent 看板",
+    "description": "统一监控本机 DSH、Codex、Claude Code、Cursor、LocalAgent、Grok Bot 与 Antigravity 的会话与任务状态。",
+    "detail": "docs/DETAIL.md"
+  }
+}
