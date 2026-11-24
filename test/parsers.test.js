@@ -6,7 +6,6 @@ import path from 'node:path'
 
 import { normalizeCodexRecord } from '../src/host/adapters/codex.js'
 import { normalizeClaudeRecord } from '../src/host/adapters/claude.js'
-import { normalizeGrokLine } from '../src/host/adapters/grokbot.js'
 import { deriveTaskStatus } from '../src/host/status.js'
 import { redact, summarize, parseTime } from '../src/host/util/text.js'
 import { TailReader } from '../src/host/util/tail.js'
@@ -90,12 +89,6 @@ test('claude: tool_result user records are tool events, not new prompts', () => 
   })
   assert.equal(out.event.kind, 'run.tool')
   assert.equal(out.open, undefined)
-})
-
-test('grok: error-ish lines become error severity', () => {
-  const out = normalizeGrokLine('[exec] 2026-11-24T05:26:37.384Z permission denied', 0)
-  assert.equal(out.event.severity, 'error')
-  assert.ok(out.at > 0)
 })
 
 test('status: open + recent is running; open + silent is attention', () => {

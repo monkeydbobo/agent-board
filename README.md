@@ -68,5 +68,6 @@ node --test test/*.test.js
 
 - 只读：不派发、不中断、不合并。
 - Cursor 会解析 IDE composer 与 CLI chat 的正文；结构变化或读不到时单个会话降级为元数据。
-- Grok Bot / Antigravity 没有本机 CLI，只做进程 + 日志/工作区级观测。
+- Grok Bot 会解析本地对话缓存（`sand-client-persistence/*.blob`），但没有 CLI，不能派发；Grok 更早的云端会话不在本地。
+- Antigravity 的 `antigravity-ide` 只是文件打开器，本地没有 transcript，只做应用/工作区元数据观测。
 - DSH 只列当前进程里的活 Agent。
