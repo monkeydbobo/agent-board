@@ -22,14 +22,14 @@ window.__ModuleLoader__.load({
       action: '/agent-board/api/action',
     }
 
-    const PROVIDERS = ['dsh', 'codex', 'claude', 'cursor', 'localagent', 'grokbot', 'antigravity']
+    const PROVIDERS = ['dsh', 'codex', 'claude', 'cursor', 'grokbot', 'antigravity']
     const LANES = ['attention', 'running', 'idle', 'done']
     const STATUSES = ['running', 'attention', 'idle', 'done']
 
     const zh = {
       panel: 'Agent 看板',
       title: 'Agent 看板',
-      subtitle: '统一监控本机的 DSH、Codex、Claude Code、Cursor、LocalAgent、Grok Bot、Antigravity',
+      subtitle: '统一监控本机的 DSH、Codex、Claude Code、Cursor、Grok Bot、Antigravity',
       refresh: '刷新',
       refreshing: '刷新中…',
       pause: '暂停监控',
@@ -100,7 +100,6 @@ window.__ModuleLoader__.load({
       'provider.codex': 'Codex',
       'provider.claude': 'Claude Code',
       'provider.cursor': 'Cursor',
-      'provider.localagent': 'LocalAgent',
       'provider.grokbot': 'Grok Bot',
       'provider.antigravity': 'Antigravity',
       'status.running': '运行中',
@@ -130,7 +129,7 @@ window.__ModuleLoader__.load({
     const en = {
       panel: 'Agent board',
       title: 'Agent board',
-      subtitle: 'One view of DSH, Codex, Claude Code, Cursor, LocalAgent, Grok Bot, and Antigravity on this Mac',
+      subtitle: 'One view of DSH, Codex, Claude Code, Cursor, Grok Bot, and Antigravity on this Mac',
       refresh: 'Refresh',
       refreshing: 'Refreshing…',
       pause: 'Pause',
@@ -201,7 +200,6 @@ window.__ModuleLoader__.load({
       'provider.codex': 'Codex',
       'provider.claude': 'Claude Code',
       'provider.cursor': 'Cursor',
-      'provider.localagent': 'LocalAgent',
       'provider.grokbot': 'Grok Bot',
       'provider.antigravity': 'Antigravity',
       'status.running': 'Running',

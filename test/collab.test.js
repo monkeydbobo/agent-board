@@ -73,8 +73,8 @@ test('parseCollabCommand: flags, agents, rounds, and task text', () => {
   assert.equal(parsed.task, 'add a hello() helper')
   assert.equal(parsed.scratch, false)
 
-  const spaced = parseCollabCommand('--agents claude,localagent --scratch fix the test')
-  assert.deepEqual(spaced.participants, ['claude', 'localagent'])
+  const spaced = parseCollabCommand('--agents claude,codex --scratch fix the test')
+  assert.deepEqual(spaced.participants, ['claude', 'codex'])
   assert.equal(spaced.scratch, true)
   assert.equal(spaced.task, 'fix the test')
 

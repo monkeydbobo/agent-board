@@ -1,7 +1,7 @@
 {
   "meta": {
     "title": "Agent board",
-    "description": "One board for the session and task state of DSH, Codex, Claude Code, Cursor, LocalAgent, Grok Bot, and Antigravity on this machine.",
+    "description": "One board for the session and task state of DSH, Codex, Claude Code, Cursor, Grok Bot, and Antigravity on this machine.",
     "detail": "docs/DETAIL.md"
   }
 }

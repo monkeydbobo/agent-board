@@ -23,7 +23,7 @@ import path from 'node:path'
 import { ensureDir, expandHome, readJsonSafe, statSafe, writeJsonAtomic } from './util/fsx.js'
 import { iso, summarize } from './util/text.js'
 
-const PARTICIPANTS = ['codex', 'claude', 'localagent']
+const PARTICIPANTS = ['codex', 'claude']
 const MAX_OUTPUT_BYTES = 2 * 1024 * 1024
 const MAX_PHASE_OUTPUT = 200 * 1024
 
@@ -158,40 +158,10 @@ export function parseClaudeOutput(stdout) {
   return { text: (result || texts.join('\n')).trim(), tools }
 }
 
-/** Parse LocalAgent `--output-format json|stream-json` output. */
-export function parseLocalAgentOutput(stdout) {
-  const texts = []
-  let result = ''
-  const consume = (record) => {
-    if (!record || typeof record !== 'object') return
-    if (record.type === 'result' && typeof record.content === 'string') result = record.content
-    if (record.type === 'message' && typeof record.text === 'string') texts.push(record.text)
-  }
-  const raw = String(stdout ?? '').trim()
-  if (raw.startsWith('[')) {
-    try {
-      const list = JSON.parse(raw)
-      if (Array.isArray(list)) for (const item of list) consume(item)
-      return { text: (result || texts.join('\n')).trim(), tools: [] }
-    } catch {
-      /* fall through to line parsing */
-    }
-  }
-  for (const line of raw.split('\n')) {
-    try {
-      consume(JSON.parse(line))
-    } catch {
-      /* skip */
-    }
-  }
-  return { text: (result || texts.join('\n')).trim(), tools: [] }
-}
-
 /** Parse provider-specific stdout into the text the next phase consumes. */
 export function parseProviderOutput(participant, stdout) {
   if (participant === 'codex') return parseCodexOutput(stdout)
   if (participant === 'claude') return parseClaudeOutput(stdout)
-  if (participant === 'localagent') return parseLocalAgentOutput(stdout)
   return { text: String(stdout ?? '').trim(), tools: [] }
 }
 
@@ -839,18 +809,6 @@ export function buildStepCommand(participant, role, prompt, run) {
         '--verbose',
         '--permission-mode', reviewer ? 'plan' : 'acceptEdits',
         '--max-turns', '20',
-      ],
-      cwd: run.workspace,
-    }
-  }
-  if (participant === 'localagent') {
-    return {
-      command: process.env.AGENT_BOARD_LOCALAGENT_BIN || 'localagent',
-      args: [
-        '-q', prompt,
-        '--cwd', run.workspace,
-        '--output-format', 'stream-json',
-        '--approval-mode', reviewer ? 'plan' : 'auto',
       ],
       cwd: run.workspace,
     }

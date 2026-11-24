@@ -67,7 +67,6 @@ export const PROCESS_PATTERNS = {
   codex: [/\/codex(?:\s|$)/, /Codex\.app\/Contents\/MacOS\//, /codex exec/],
   claude: [/\/claude(?:\s|$)/, /Claude\.app\/Contents\/MacOS\//],
   cursor: [/Cursor\.app\/Contents\/MacOS\/Cursor/, /cursor-agent/, /\/agent\s+-p\b/],
-  localagent: [/LocalAgent\.app\/Contents\/MacOS\//, /\/localagent(?:\s|$)/],
   grokbot: [/Grok Bot\.app\/Contents\/MacOS\//, /grokbot/i],
   antigravity: [/Antigravity(?: IDE)?\.app\/Contents\/MacOS\//],
 }

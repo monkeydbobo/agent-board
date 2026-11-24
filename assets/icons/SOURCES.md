@@ -11,7 +11,6 @@ these local files; it does not call the MCP server at runtime.
 | Codex | `codex.svg` | Dashboard Icons (native) | https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/openai.svg |
 | Claude Code | `claude.svg` | Dashboard Icons (native) | https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/anthropic.svg |
 | Cursor | `cursor.svg` | LobeHub icons | https://cdn.jsdelivr.net/npm/@lobehub/icons-static-svg@latest/icons/cursor.svg |
-| LocalAgent | `localagent.svg` | LobeHub icons (`codeflicker`) | https://cdn.jsdelivr.net/npm/@lobehub/icons-static-svg@latest/icons/codeflicker-color.svg |
 | Grok Bot | `grokbot.svg` | LobeHub icons | https://cdn.jsdelivr.net/npm/@lobehub/icons-static-svg@latest/icons/grokbot.svg |
 | Antigravity | `antigravity.svg` | LobeHub icons | https://cdn.jsdelivr.net/npm/@lobehub/icons-static-svg@latest/icons/antigravity-color.svg |
 

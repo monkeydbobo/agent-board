@@ -12,7 +12,7 @@
 │  Board Service（任务/事件/状态/覆盖）                 │
 │  Reconciler（3s：采集 → 归一 → 提交 → 广播）          │
 │  Adapters：DSH · Codex · Claude · Cursor ·            │
-│            LocalAgent · Grok Bot · Antigravity         │
+│            Grok Bot · Antigravity                     │
 └───────────────────────────────────────────────────────┘
 ```
 
@@ -60,7 +60,6 @@ node --test test/*.test.js
 
 - 「用 codex 和 claude 合作：在 `/Users/me/repo` 里加上 `hello()` 和测试，要求 `node --test` 通过。」
 - 「让 codex 实现、claude 评审，最多两轮，base 用 `main`。」
-- 「用 localagent 实现、claude 评审。」
 
 我会调用 `collab_start`，在 `~/agent-workspaces/<id>` 里创建一个独立 git worktree：
 
@@ -69,7 +68,7 @@ node --test test/*.test.js
 3. `revise` 时把问题回传给实现者再来一轮，直到 approve 或达到 `maxRounds`；
 4. 结束写 `.agent-board/result.json`，保留 worktree/分支，不自动合并、不 push。
 
-v1 固定两个参与者：第一个实现、第二个评审（Codex / Claude Code / LocalAgent 任意组合）。看板的「协作」条会实时显示参与者、轮次、当前阶段和日志；详情里可以停止协作。
+v1 固定两个参与者：第一个实现、第二个评审（Codex / Claude Code 任意组合）。看板的「协作」条会实时显示参与者、轮次、当前阶段和日志；详情里可以停止协作。
 
 协作 worktree 从仓库 `HEAD`（或 `--base`）拉出；当前未提交的改动不会被带进去，先 commit 或另开 scratch。
 
@@ -77,7 +76,6 @@ v1 固定两个参与者：第一个实现、第二个评审（Codex / Claude Co
 
 ```text
 /collab --agents=codex,claude --rounds=2 <任务>
-/collab --agents=localagent,claude --scratch <任务>
 ```
 
 在 git 仓库的会话里，`/collab` 自动用当前会话目录建 worktree；不在仓库里时退化为临时仓库（`--scratch` 强制）。

@@ -13,7 +13,6 @@ export const ICON_FILES = {
   codex: 'codex.svg',
   claude: 'claude.svg',
   cursor: 'cursor.svg',
-  localagent: 'localagent.svg',
   grokbot: 'grokbot.svg',
   antigravity: 'antigravity.svg',
 }

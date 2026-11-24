@@ -6,7 +6,7 @@ import { ICON_FILES, readIcon } from '../src/host/icons.js'
 test('icons: every provider has a bundled SVG', async () => {
   assert.deepEqual(
     Object.keys(ICON_FILES).sort(),
-    ['antigravity', 'claude', 'codex', 'cursor', 'dsh', 'grokbot', 'localagent'],
+    ['antigravity', 'claude', 'codex', 'cursor', 'dsh', 'grokbot'],
   )
   for (const provider of Object.keys(ICON_FILES)) {
     const data = await readIcon(provider)

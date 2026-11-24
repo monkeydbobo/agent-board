@@ -89,7 +89,7 @@ export function registerTools(tools, board, collab) {
       'fleet_status',
       'Summarize every local coding-agent session the Agent Board monitors: counts, each provider, what needs attention, and what is running. Read-only.',
       {
-        provider: { type: 'string', required: false, description: 'Optional provider id filter: dsh, codex, claude, cursor, localagent, grokbot, antigravity.' },
+        provider: { type: 'string', required: false, description: 'Optional provider id filter: dsh, codex, claude, cursor, grokbot, antigravity.' },
         limit: { type: 'integer', required: false, description: 'Maximum tasks listed per section (default 10).' },
       },
       async (args) => {
@@ -132,14 +132,14 @@ export function registerTools(tools, board, collab) {
     ),
     textTool(
       'collab_start',
-      'Start a supervised multi-agent collaboration in the background. The first participant implements in a shared git worktree, the second reviews the diff, and revisions loop until approved or maxRounds. Use when the user asks two local agents (Codex, Claude Code, LocalAgent) to work on one task together. Returns immediately with a run id; poll with collab_status.',
+      'Start a supervised multi-agent collaboration in the background. The first participant implements in a shared git worktree, the second reviews the diff, and revisions loop until approved or maxRounds. Use when the user asks two local agents (Codex, Claude Code) to work on one task together. Returns immediately with a run id; poll with collab_status.',
       {
         task: { type: 'string', required: true, description: 'The work item, with acceptance criteria and constraints. 1–12000 chars.' },
         repo: { type: 'string', required: false, description: 'Absolute path to a git repository. Omit to create a scratch repository under ~/agent-workspaces.' },
         participants: {
           type: 'array',
           required: false,
-          items: { type: 'string', enum: ['codex', 'claude', 'localagent'] },
+          items: { type: 'string', enum: ['codex', 'claude'] },
           description: 'Exactly two participants: the first implements, the second reviews. Default is codex then claude.',
         },
         maxRounds: { type: 'integer', required: false, description: 'Implementation/review rounds, 1–5 (default 2).' },
